@@ -167,15 +167,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Atualiza bolinhas (Pagination Dots)
         if (paginationDotsContainer) {
             paginationDotsContainer.innerHTML = '';
-            let activeDot = null;
             window.albums.forEach((_, idx) => {
                 const dot = document.createElement('div');
-                dot.className = `cursor-pointer flex-shrink-0 hover:bg-gray-600 hover:scale-125 h-2 rounded-full transition-all duration-300 ${idx === currentAlbumIndex ? 'bg-black w-6' : 'bg-black/20 w-2'}`;
+                dot.className = `cursor-pointer hover:bg-gray-600 hover:scale-125 h-2 rounded-full transition-all duration-300 ${idx === currentAlbumIndex ? 'bg-black w-6' : 'bg-black/20 w-2'}`;
                 
-                if (idx === currentAlbumIndex) {
-                    activeDot = dot;
-                }
-
                 dot.addEventListener('click', () => {
                     if (idx !== currentAlbumIndex) {
                         if (currentAudio) {
@@ -191,13 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 paginationDotsContainer.appendChild(dot);
             });
-
-            if (activeDot) {
-                // Dá um tempinho para o DOM renderizar o appendChild antes de calcular o scroll
-                setTimeout(() => {
-                    activeDot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }, 50);
-            }
         }
         
         if (!isInitialOpen) {

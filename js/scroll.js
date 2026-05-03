@@ -36,63 +36,68 @@ window.addEventListener("load", () => {
             start: "top top",
             end: "bottom bottom",
             scrub: 1,
-            onUpdate: () => {
-                const wrapperZ = gsap.getProperty(wrapper, "z");
-
-                cards.forEach((card, index) => {
-                    let cycle = parseInt(card.dataset.cycle || 0);
-
-                    let cardLocalZ = (index + cycle * N) * -800;
-                    let globalZ = wrapperZ + cardLocalZ;
-
-                    // --- RECICLAGEM DE DOM ---
-                    if (globalZ > 300) {
-                        cycle += 1;
-                        card.dataset.cycle = cycle;
-                        cardLocalZ = (index + cycle * N) * -800;
-                        globalZ = wrapperZ + cardLocalZ;
-                    }
-                    else if (globalZ < 300 - (N * 800)) {
-                        cycle -= 1;
-                        card.dataset.cycle = cycle;
-                        cardLocalZ = (index + cycle * N) * -800;
-                        globalZ = wrapperZ + cardLocalZ;
-                    }
-
-                    // --- MATRIZ DIAGONAL INFINITA ---
-                    const cardLocalX = (index + cycle * N) * 15;
-                    const cardLocalY = (index + cycle * N) * -10;
-
-                    card.style.setProperty('--tx', `${cardLocalX}vw`);
-                    card.style.setProperty('--ty', `${cardLocalY}vh`);
-                    card.style.setProperty('--tz', `${cardLocalZ}px`);
-
-                    // Hierarquia 3D blindada (Z-index dinâmico)
-                    card.style.zIndex = Math.round(globalZ);
-
-                    // --- CINEMATIC DEPTH OF FIELD ---
-                    let op = 1;
-                    let blur = 0;
-                    let s = 1;
-
-                    if (globalZ > 50 && globalZ <= 250) {
-                        const progress = (globalZ - 50) / 200;
-                        op = 1 - progress;
-                        blur = progress * 15;
-                        s = 1 + (progress * 0.2);
-                    } else if (globalZ > 250) {
-                        op = 0;
-                        blur = 15;
-                        s = 1.2;
-                    }
-
-                    card.style.setProperty('--op', op);
-                    card.style.setProperty('--blur', blur);
-                    card.style.setProperty('--s', s);
-                });
-            }
+            onUpdate: updateCards
         }
     });
+
+    function updateCards() {
+        const wrapperZ = gsap.getProperty(wrapper, "z") || 0;
+
+        cards.forEach((card, index) => {
+            let cycle = parseInt(card.dataset.cycle || 0);
+
+            let cardLocalZ = (index + cycle * N) * -800;
+            let globalZ = wrapperZ + cardLocalZ;
+
+            // --- RECICLAGEM DE DOM ---
+            if (globalZ > 300) {
+                cycle += 1;
+                card.dataset.cycle = cycle;
+                cardLocalZ = (index + cycle * N) * -800;
+                globalZ = wrapperZ + cardLocalZ;
+            }
+            else if (globalZ < 300 - (N * 800)) {
+                cycle -= 1;
+                card.dataset.cycle = cycle;
+                cardLocalZ = (index + cycle * N) * -800;
+                globalZ = wrapperZ + cardLocalZ;
+            }
+
+            // --- MATRIZ DIAGONAL INFINITA ---
+            const cardLocalX = (index + cycle * N) * 15;
+            const cardLocalY = (index + cycle * N) * -10;
+
+            card.style.setProperty('--tx', `${cardLocalX}vw`);
+            card.style.setProperty('--ty', `${cardLocalY}vh`);
+            card.style.setProperty('--tz', `${cardLocalZ}px`);
+
+            // Hierarquia 3D blindada (Z-index dinâmico)
+            card.style.zIndex = Math.round(globalZ);
+
+            // --- CINEMATIC DEPTH OF FIELD ---
+            let op = 1;
+            let blur = 0;
+            let s = 1;
+
+            if (globalZ > 50 && globalZ <= 250) {
+                const progress = (globalZ - 50) / 200;
+                op = 1 - progress;
+                blur = progress * 15;
+                s = 1 + (progress * 0.2);
+            } else if (globalZ > 250) {
+                op = 0;
+                blur = 15;
+                s = 1.2;
+            }
+
+            card.style.setProperty('--op', op);
+            card.style.setProperty('--blur', blur);
+            card.style.setProperty('--s', s);
+        });
+    }
+
+    // Força o cálculo inicial de Z-index antes do usuário realizar qualquer scroll
+    updateCards();
 
     // --- DRAG TO SCROLL (GSAP OBSERVER) ---
     // Monitoramos eventos de touch e ponteiro no nível do window inteiro
