@@ -21,6 +21,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const iconPause = document.getElementById('icon-pause');
     const progressBarFill = document.getElementById('progress-bar-fill');
     const paginationDotsContainer = document.getElementById('pagination-dots');
+    const spotifyLinkEl = document.getElementById('spotify-link');
+    const modalCoverContainer = modalCover.parentElement;
+
+    if (window.matchMedia('(pointer: fine)').matches) {
+        modalCoverContainer.addEventListener('mousemove', (e) => {
+            const rect = modalCoverContainer.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+            const rotateX = -y * 30;
+            const rotateY = x * 30;
+
+            gsap.to(modalCover, {
+                rotateX: rotateX,
+                rotateY: rotateY,
+                duration: 0.5,
+                ease: 'power2.out',
+                transformPerspective: 1000
+            });
+        });
+
+        modalCoverContainer.addEventListener('mouseleave', () => {
+            gsap.to(modalCover, {
+                rotateX: 0,
+                rotateY: 0,
+                duration: 0.8,
+                ease: 'power2.out'
+            });
+        });
+    }
 
     let modalTl;
     let currentAudio = null;
@@ -122,13 +152,30 @@ document.addEventListener("DOMContentLoaded", () => {
         customTrackName.textContent = album.favoriteTrack || "Faixa Desconhecida";
         progressBarFill.style.width = '0%';
         
+        if (spotifyLinkEl) {
+            const href = album.spotifyLink || '#';
+            spotifyLinkEl.href = href;
+            if (href === '#') {
+                spotifyLinkEl.classList.add('opacity-30', 'pointer-events-none');
+                spotifyLinkEl.classList.remove('opacity-100');
+            } else {
+                spotifyLinkEl.classList.remove('opacity-30', 'pointer-events-none');
+                spotifyLinkEl.classList.add('opacity-100');
+            }
+        }
+        
         // Atualiza bolinhas (Pagination Dots)
         if (paginationDotsContainer) {
             paginationDotsContainer.innerHTML = '';
+            let activeDot = null;
             window.albums.forEach((_, idx) => {
                 const dot = document.createElement('div');
-                dot.className = `cursor-pointer hover:bg-gray-600 hover:scale-125 h-2 rounded-full transition-all duration-300 ${idx === currentAlbumIndex ? 'bg-black w-6' : 'bg-black/20 w-2'}`;
+                dot.className = `cursor-pointer flex-shrink-0 hover:bg-gray-600 hover:scale-125 h-2 rounded-full transition-all duration-300 ${idx === currentAlbumIndex ? 'bg-black w-6' : 'bg-black/20 w-2'}`;
                 
+                if (idx === currentAlbumIndex) {
+                    activeDot = dot;
+                }
+
                 dot.addEventListener('click', () => {
                     if (idx !== currentAlbumIndex) {
                         if (currentAudio) {
@@ -144,6 +191,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 paginationDotsContainer.appendChild(dot);
             });
+
+            if (activeDot) {
+                // Dá um tempinho para o DOM renderizar o appendChild antes de calcular o scroll
+                setTimeout(() => {
+                    activeDot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }, 50);
+            }
         }
         
         if (!isInitialOpen) {

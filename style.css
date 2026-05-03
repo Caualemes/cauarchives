@@ -86,3 +86,14 @@ body.grabbing .scene {
     pointer-events: none;
     transform: scale(1.01);
 }
+
+.dots-wrapper {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.dots-wrapper::-webkit-scrollbar {
+    display: none;
+}
