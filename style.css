@@ -34,6 +34,7 @@ body.grabbing .scene {
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
 }
 
 .album-card {
@@ -47,7 +48,8 @@ body.grabbing .scene {
     backface-visibility: hidden;
     -webkit-font-smoothing: antialiased;
     transform-style: preserve-3d;
-    pointer-events: auto !important;
+
+    pointer-events: auto;
 
     opacity: var(--op, 1);
     filter: blur(var(--blur, 0px));
